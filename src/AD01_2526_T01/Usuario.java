@@ -190,13 +190,12 @@ public class Usuario implements Serializable {
      */
     public static void cargarLista(String nombreArchivo) {
 
-        listaUsuarios.clear();
-
+        //listaUsuarios.clear();
         try (
                 FileInputStream fileIn = new FileInputStream(nombreArchivo); ObjectInputStream in = new ObjectInputStream(fileIn)) {
 
             listaUsuarios = (List<Usuario>) in.readObject();
-            listaUsuariosDeserializada = (List<Usuario>) in.readObject();
+            //listaUsuariosDeserializada = (List<Usuario>) in.readObject();
 
         } catch (FileNotFoundException ex) {
             System.err.println("Error: El archivo " + nombreArchivo + "no existe.");
@@ -214,10 +213,11 @@ public class Usuario implements Serializable {
      * @param nombreArchivo
      */
     public static void escribirTXT(String nombreArchivo) {
+        listaUsuariosTXT.clear();
         for (Usuario user : listaUsuarios) {
             listaUsuariosTXT.add(user.toString());
         }
-        try (FileWriter fw = new FileWriter(nombreArchivo, true); BufferedWriter bw = new BufferedWriter(fw)) {
+        try (FileWriter fw = new FileWriter(nombreArchivo, false); BufferedWriter bw = new BufferedWriter(fw)) {
             for (String str : listaUsuariosTXT) {
                 bw.write(str);
                 bw.newLine();
@@ -247,18 +247,55 @@ public class Usuario implements Serializable {
 
     }
 
+    /**
+     * Método para cargar la lista de usuarios desde un archivo dado
+     *
+     * @param nombreArchivo
+     */
+    public static void cargarListaGrabada(String nombreArchivo) {
+
+        //listaUsuarios.clear();
+        try (
+                FileInputStream fileIn = new FileInputStream(nombreArchivo); 
+                ObjectInputStream in = new ObjectInputStream(fileIn)) {
+
+            //listaUsuarios = (List<Usuario>) in.readObject();
+            listaUsuariosDeserializada = (List<Usuario>) in.readObject();
+
+        } catch (FileNotFoundException ex) {
+            System.err.println("Error: El archivo " + nombreArchivo + "no existe.");
+        } catch (IOException ex) {
+            System.err.println("Error de Entrada/Salida: Falló la lectura del fichero.");
+        } catch (ClassNotFoundException ex) {
+            System.err.println("Error de clase: No se pudo encontrar la clase Usuario.");
+        }
+
+    }
+
     public static boolean compararListas() {
 
-        int contador = 0;
-        boolean listasIguales = true;
+        int contUsuariosDistintos = 0;
+        boolean listasIguales;
 
         if (listaUsuarios.size() == listaUsuariosDeserializada.size()) {
             for (int i = 0; i < listaUsuarios.size(); i++) {
-                if (listaUsuarios.get(i) != listaUsuariosDeserializada.get(i)) {
-                    contador++;
-                    listasIguales = false;
+                if (!listaUsuarios.get(i).toString().equals(listaUsuariosDeserializada.get(i).toString())) {
+                    System.out.println(listaUsuarios.get(i) + "-->" +listaUsuariosDeserializada.get(i));
+                    contUsuariosDistintos++;
                 }
             }
+
+            if (contUsuariosDistintos > 0) {
+                listasIguales = false;
+            } else {
+                listasIguales = true;
+            }
+
+            return listasIguales;
+
+        } else {
+            listasIguales = false;
+            return listasIguales;
         }
 //        for (Usuario user : listaUsuarios) {
 //            for (Usuario user2 : listaUsuariosDeserializada) {
@@ -267,12 +304,12 @@ public class Usuario implements Serializable {
 //                    listasIguales = true;
 //                } else {
 //                    listaIguales = false;
-//                    contador++;
+//                    contUsuariosDistintos++;
 //                }
 //            }
 //
 //        }
-        return listasIguales;
+
     }
 
     /**
